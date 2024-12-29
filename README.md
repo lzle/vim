@@ -33,7 +33,12 @@
     * [可视化](#6可视化)
     * [分屏操作](#7分屏操作)
     * [多文件操作](#8多文件操作)
-    
+
+* [插件](#插件)
+    * [管理工具](#管理工具)
+    * [NERDTree](#NERDTree)
+
+
 
 ## 一、基础
 
@@ -585,27 +590,69 @@ set wildmode=longest:list,full
 0   -> 数字零，到行头
 ^   -> 到本行第一个不是blank字符的位置（所谓blank字符就是空格，tab，换行，回车等）
 $   -> 到本行行尾
-g_  -> 到本行最后一个不是blank字符的位置
 w   -> 到下一个单词的开头，单词是由字母、数字、下划线组成的（不严格的说法）
 e   -> 到下一个单词的结尾，单词是由字母、数字、下划线组成的（不严格的说法）
-b   -> 到上一个单词的开头，单词是由字母、数字、下划线组成的（不严格的说法）
-W   -> 到下一个单词的开头，单词是由blank字符分隔
-E   -> 到下一个单词的结尾，单词是由blank字符分隔
-B   -> 到上一个单词的开头，单词是由blank字符分隔
 %   -> 匹配括号移动，包括 (, {, [. （你需要把光标先移到括号上）
-*   -> 匹配光标当前所在的单词，移动光标到下一个匹配单词
-#   -> 匹配光标当前所在的单词，移动光标到上一个匹配单词
-fa  -> 到下一个为a的字符处
+ctrl + f -> 向下翻页
+ctrl + b -> 向上翻页
+( 和 ) 移到上一句和下一句
+{ 和 } 移到上一段和下一段
 ```
 
-### 2、Undo/Redo
+### 2、修改类
 
 ```
-u          -> undo
-<ctrl+r>   -> redo
+x  -> 删除光标所在处的字符
+r  -> 替换光标所在处的字符
+dw -> 删除一个单词
+de -> 删除到一个单词的末尾
+d$ -> 删除到行尾
+dt -> 删除到某个字符
+cw ->  dw + i
+ce ->  de + i
+c$ ->  d$ + i
 ```
 
-### 3、组合命令
+### 3、文本对象处理
+
+文件内容如下，假设光标停在 “sesame” 的 “a” 上。
+
+```
+if (message == "sesame open")
+```
+
+基本附加键是 a 和 i。其中，a 可以简单理解为英文单词 a，表示选定后续动作要求的完整内容，
+而 i 可理解为英文单词 inner，代表后续动作要求的内容的“内部”。
+
+```
+‘dw’（理解为 delete word）会删除“ame␣”，结果是“if (message == "sesopen")”
+‘diw’（理解为 delete inside word）会删除“sesame”，结果是“if (message == " open")”
+‘daw’（理解为 delete a word）会删除“sesame␣”，结果是“if (message == "open")”
+‘di"’会删除“sesame open”，结果是“if (message == "")”
+‘da"’会删除“"sesame open"”，结果是“if (message ==)”
+‘di(’或‘di)’会删除“message == "sesame open"”，结果是“if ()”
+‘da(’或‘da)’会删除“(message == "sesame open")”，结果是“if␣”
+```
+
+
+### 3、搜索类
+
+```
+/word   -> 向下搜索
+?word   -> 向上搜索
+n       -> 重复上一次的搜索
+N       -> 反向重复上一次的搜索
+```
+
+### 3、Undo/Redo
+
+```
+u          -> 撤销最近的修改
+U          -> 撤销对整行的修改
+<ctrl+r>   -> 重做
+```
+
+### 4、组合命令
 
 ```
 .   -> 重复上一个命令
@@ -614,7 +661,7 @@ u          -> undo
 ye  -> 当前位置拷贝到本单词的最后一个字符
 ```
 
-### 4、区域选择
+### 5、区域选择
 
 ```
 在visual 模式下，这些命令很强大，其命令格式为
@@ -635,12 +682,12 @@ v2i) -> 会选择 map (+) ("foo")
 v2a) -> 会选择 (map (+) ("foo"))
 ```
 
-### 5、单词补齐
+### 6、单词补齐
 
 在 Insert 模式下，你可以输入一个词的开头，然后按 <ctrl-p>或是<ctrl-n>，自动补齐功能就出现了
 
 
-### 6、可视化
+### 7、可视化
 
 使用 v 和 V。一但被选好了，你可以做下面的事
 
@@ -659,16 +706,19 @@ J -> 把所有的行连接起来（变成一行）
 I-- [ESC]   -> I是插入，插入“--”，按ESC键来为每一行生效。
 ```
 
-### 7、分屏操作
+### 8、分屏操作
 
 ```
-:split -> 创建分屏 (:vsplit创建垂直分屏)
+:split        -> 创建分屏(或者使用缩写命令:sp)
+:vsplit       -> 创建垂直分屏(或者使用缩写命令:vs)
 <ctrl-w><dir> -> dir就是方向，可以是 hjkl 或是 ←↓↑→ 中的一个，其用来切换分屏。
-<ctrl-w>_ (或 <ctrl-w>|) -> 最大化尺寸 (<C-w>| 垂直分屏)
-<ctrl-w>+ (或 <ctrl-w>-) -> 增加尺寸
+<ctrl-w>=     -> 所有尺寸相等
+<C-W>n 或 :new    -> 打开一个新窗口
+<C-W>q 或 :quit   -> 退出当前窗口，当最后一个窗口退出时则退出 Vim
+<C-W>o 或 :only   -> 只保留当前窗口，关闭其他所有窗口
 ```
 
-### 8、多文件操作
+### 9、多文件操作
 
 ```
 :e <path/to/file> -> 打开一个文件
@@ -679,7 +729,101 @@ I-- [ESC]   -> I是插入，插入“--”，按ESC键来为每一行生效。
 :bn 和 :bp -> 你可以同时打开很多文件，使用这两个命令来切换下一个或上一个文件
 ```
 
+## 插件
+
+### 管理工具
+
+`vim-plug` 是一个轻量级的插件管理器，支持并行安装，可以在运行时异步加载插件。
+
+#### 安装
+
+Unix
+
+```shell
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+```
+
+#### 配置
+
+Add a vim-plug section to your `~/.vimrc` (or `~/.config/nvim/init.vim` for Neovim)
+
+```
+call plug#begin()
+
+" List your plugins here
+Plug 'tpope/vim-sensible'
+
+call plug#end()
+```
+
+Reload the file or restart Vim, then you can,
+
+* :PlugInstall to install the plugins
+* :PlugUpdate to install or update the plugins
+* :PlugDiff to review the changes from the last update
+* :PlugClean to remove plugins no longer in the list
+
+
+### NERDTree
+
+`NERDTree` 是一个文件资源管理器插件，可以让你在 Vim 中浏览文件系统，打开文件和目录。
+
+#### 安装
+
+```
+call plug#begin()
+  Plug 'preservim/nerdtree'
+call plug#end()
+```
+
+Restart Vim, and run the `:PlugInstall` statement to install your plugins.
+
+#### 快捷键
+
+```
+nnoremap <leader>n :NERDTreeFocus<CR>
+nnoremap <C-n> :NERDTree<CR>
+nnoremap <C-t> :NERDTreeToggle<CR>
+nnoremap <C-f> :NERDTreeFind<CR>
+```
+
+#### 配置
+
+显示文件行数。
+
+```
+let g:NERDTreeFileLines = 1
+```
+
+执行 `:help NERDTree` 查看帮助。
+
+```
+o : open in prev window
+go : preview
+t : open in new tab
+T : open in new tab silently
+i : open split
+gi : preview split
+s : open vsplit
+gs : preview vsplit
+```
+
+
+#### 相关插件
+
+Adds file type icons to Vim plugins.
+
+```
+Plug 'ryanoasis/vim-devicons'
+```
+
+Use :help devicons for further configuration.
+
+
 
 ## 相关链接
 
 [简明 VIM 练级攻略](https://coolshell.cn/articles/5426.html)
+[vim-plug](https://github.com/junegunn/vim-plug)
+[nerdtree](https://github.com/preservim/nerdtree)
